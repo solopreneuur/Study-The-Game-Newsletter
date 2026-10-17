@@ -1,0 +1,13 @@
+{
+  "name": "study-the-game-newsletter",
+  "version": "1.0.0",
+  "description": "Study the Game Newsletter - 5 ideas worth stealing, hand-picked every Sunday",
+  "private": true,
+  "scripts": {
+    "dev": "npx http-server . -p 3000",
+    "build": "echo 'Static site - no build required'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  }
+}
