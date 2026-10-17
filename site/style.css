@@ -1,28 +1,18 @@
-/* Study the Game: quiet editorial. Cream paper, one serif, one accent. */
+/* Study the Game: a warm, hand-annotated notebook page. Light only. */
 
 :root {
-  --paper: #f4efe6;
-  --ink: #1a1712;
-  --ink-2: #57514a;
-  --muted: #8a8378;
-  --rule: #d9d1c3;
-  --accent: #a8382a;
+  color-scheme: light;
+  --paper: #f7eedd;
+  --paper-deep: #efe2c9;
+  --ink: #2b2118;
+  --ink-2: #5e4f40;
+  --muted: #94826d;
+  --accent: #c4532d;            /* terracotta */
+  --marker: rgba(244, 196, 88, 0.55);
 
-  --display: "Archivo", "Arial Narrow", sans-serif;
-  --serif: "Fraunces", Georgia, "Times New Roman", serif;
-  --sans: "Archivo", -apple-system, "Helvetica Neue", Arial, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #171511;
-    --ink: #eee7da;
-    --ink-2: #bdb4a4;
-    --muted: #857d70;
-    --rule: #2e2a23;
-    --accent: #e0745f;
-  }
+  --head: "Fraunces", Georgia, serif;
+  --body: "Newsreader", Georgia, "Times New Roman", serif;
+  --hand: "Caveat", "Bradley Hand", cursive;
 }
 
 * { box-sizing: border-box; }
@@ -33,13 +23,14 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--sans);
-  font-size: 17px;
-  line-height: 1.65;
+  font-family: var(--body);
+  font-optical-sizing: auto;
+  font-size: 19px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 a:hover { color: var(--accent); }
 
 .wrap {
@@ -48,142 +39,157 @@ a:hover { color: var(--accent); }
   padding: 0 20px 120px;
 }
 
-.mono {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.hand {
+  font-family: var(--hand);
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* Hand-drawn wobbly line, used for underlines and dividers. */
+.squiggle {
+  display: block;
+  width: 100%;
+  height: 10px;
+  color: var(--accent);
 }
 
 /* ---------- masthead ---------- */
 
-.masthead {
+.masthead { padding: 30px 0 0; }
+
+.masthead-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  padding: 28px 0 16px;
-  border-bottom: 1px solid var(--ink);
 }
 
 .wordmark {
-  font-family: var(--display);
-  font-variation-settings: "wdth" 62;
-  font-weight: 900;
-  font-size: 26px;
+  font-family: var(--head);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-weight: 800;
+  font-size: 25px;
   line-height: 1;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   text-decoration: none;
+  white-space: nowrap;
   color: var(--ink);
 }
 .wordmark:hover { color: var(--ink); }
 
-#meta { color: var(--muted); }
+#meta { font-size: 21px; transform: rotate(-2deg); white-space: nowrap; }
+
+.masthead .squiggle { margin-top: 12px; opacity: 0.85; }
 
 /* ---------- issue header ---------- */
 
-.issue-head { padding: 56px 0 8px; }
+.issue-head { padding: 52px 0 4px; }
 
 .issue-title {
   margin: 0;
-  font-family: var(--serif);
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-size: clamp(36px, 10vw, 52px);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
+  font-family: var(--head);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-weight: 700;
+  font-size: clamp(40px, 11vw, 58px);
+  line-height: 1;
+  letter-spacing: -0.025em;
 }
-.issue-title em { font-style: italic; font-weight: 400; color: var(--accent); }
+.issue-title .under { position: relative; display: inline-block; font-style: italic; font-weight: 500; color: var(--accent); }
+.issue-title .under svg { position: absolute; left: -2%; bottom: -10px; width: 104%; height: 14px; }
 
-.deck { margin: 14px 0 0; color: var(--ink-2); }
+.deck { margin: 22px 0 0; color: var(--ink-2); font-style: italic; }
 
 /* ---------- ideas ---------- */
 
-.idea { margin-top: 64px; }
+.idea { margin-top: 30px; }
+
+.divider { width: 64px; margin: 56px 0 34px; }
 
 .idea-top {
   display: flex;
+  align-items: baseline;
   gap: 14px;
-  margin-bottom: 10px;
-  color: var(--accent);
+  margin-bottom: 6px;
 }
+
+.idea-num { font-size: 40px; }
+.idea-pick { font-size: 24px; }
 
 .idea-hook {
   margin: 0 0 12px;
-  font-family: var(--serif);
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-size: clamp(24px, 6.4vw, 29px);
-  line-height: 1.15;
-  letter-spacing: -0.012em;
+  font-family: var(--head);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-weight: 650;
+  font-size: clamp(26px, 7vw, 31px);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
 }
 
 .idea-body { margin: 0; }
 
-.steal { margin: 22px 0 0; padding-left: 16px; border-left: 2px solid var(--accent); }
-.steal-label { display: block; margin-bottom: 4px; color: var(--accent); }
-.steal p {
-  margin: 0;
-  font-family: var(--serif);
-  font-optical-sizing: auto;
-  font-style: italic;
-  font-size: 19px;
-  line-height: 1.45;
+.steal { margin: 22px 0 0; }
+.steal-label { display: inline-block; margin-bottom: 4px; font-size: 24px; }
+.steal p { margin: 0; font-style: italic; font-size: 20px; line-height: 1.5; }
+.steal mark {
+  padding: 0.05em 0.2em;
+  margin: 0 -0.2em;
+  color: inherit;
+  background: var(--marker);
+  border-radius: 0.6em 0.2em 0.7em 0.25em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
-.video { display: inline-block; margin-top: 16px; font-size: 15px; color: var(--ink-2); }
+.video { display: inline-block; margin-top: 14px; font-size: 17px; color: var(--ink-2); }
 
 /* ---------- sign-off ---------- */
 
-.signoff {
-  margin-top: 72px;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 20px;
-  line-height: 1.4;
-}
-.signoff span { display: block; font-style: normal; color: var(--ink-2); }
+.signoff { margin-top: 72px; }
+.signoff p { margin: 0; font-style: italic; color: var(--ink-2); }
+.signoff .hand { display: inline-block; margin-top: 4px; font-size: 40px; color: var(--ink); transform: rotate(-3deg); }
 
 /* Fallback when the issue doesn't parse into ideas: plain markdown. */
 .raw { padding-top: 48px; }
 .raw p { margin: 0 0 24px; }
-.raw h1 { font-family: var(--serif); font-weight: 600; font-size: 36px; line-height: 1.05; }
+.raw h1 { font-family: var(--head); font-weight: 700; font-size: 38px; line-height: 1.05; }
 
 /* ---------- empty state ---------- */
 
 .empty { padding: 96px 0 24px; }
+.empty .hand { display: inline-block; font-size: 26px; transform: rotate(-3deg); margin-bottom: 8px; }
 .empty h2 {
-  margin: 0 0 10px;
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: clamp(32px, 9vw, 46px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  font-family: var(--head);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-weight: 700;
+  font-size: clamp(36px, 10vw, 50px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
 }
-.empty p { margin: 0; color: var(--ink-2); }
+.empty p { margin: 0; color: var(--ink-2); font-style: italic; }
 
 /* ---------- footer ---------- */
 
 .foot {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   flex-wrap: wrap;
   gap: 6px 16px;
   margin-top: 88px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rule);
+  font-size: 15px;
   color: var(--muted);
 }
+.foot .squiggle { flex-basis: 100%; margin-bottom: 8px; opacity: 0.5; }
 .foot button {
   padding: 0;
   border: none;
   background: none;
   color: var(--ink);
   font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
   text-decoration: underline;
+  text-decoration-color: var(--accent);
   text-underline-offset: 3px;
   cursor: pointer;
 }
@@ -192,14 +198,15 @@ a:hover { color: var(--accent); }
 
 .btn {
   display: inline-block;
-  padding: 14px 18px;
+  padding: 14px 20px;
   border: none;
-  border-radius: 2px;
+  border-radius: 3px 6px 4px 7px;
   background: var(--ink);
   color: var(--paper);
-  font-family: var(--sans);
+  font-family: var(--head);
+  font-variation-settings: "SOFT" 100;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 17px;
   cursor: pointer;
 }
 .btn:hover { background: var(--accent); }
@@ -210,8 +217,10 @@ a:hover { color: var(--accent); }
   right: 16px;
   bottom: 16px;
   z-index: 20;
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: 10px 16px;
+  font-size: 15px;
+  transform: rotate(-2deg);
+  box-shadow: 0 6px 18px rgba(43, 33, 24, 0.22);
 }
 
 /* ---------- signup popup ---------- */
@@ -224,7 +233,7 @@ a:hover { color: var(--accent); }
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(26, 23, 18, 0.5);
+  background: rgba(43, 33, 24, 0.45);
 }
 .modal[hidden] { display: none; }
 
@@ -232,9 +241,11 @@ a:hover { color: var(--accent); }
   position: relative;
   width: 100%;
   max-width: 400px;
-  padding: 36px 24px 24px;
+  padding: 34px 24px 24px;
   background: var(--paper);
-  border-radius: 2px;
+  border-radius: 4px 8px 5px 9px;
+  box-shadow: 0 20px 50px rgba(43, 33, 24, 0.3);
+  transform: rotate(-0.6deg);
 }
 
 .modal-close {
@@ -250,36 +261,37 @@ a:hover { color: var(--accent); }
   cursor: pointer;
 }
 
-.modal-card .mono { color: var(--muted); }
+.modal-card .hand { display: inline-block; font-size: 26px; transform: rotate(-3deg); }
 
 .modal-card h2 {
-  margin: 10px 0 10px;
-  font-family: var(--serif);
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-size: 30px;
-  line-height: 1.08;
+  margin: 8px 0 10px;
+  font-family: var(--head);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-weight: 700;
+  font-size: 31px;
+  line-height: 1.05;
   letter-spacing: -0.02em;
 }
-.modal-card h2 em { font-style: italic; font-weight: 400; color: var(--accent); }
-.modal-card .lede { margin: 0 0 22px; color: var(--ink-2); font-size: 16px; line-height: 1.5; }
+.modal-card h2 mark { padding: 0 0.15em; margin: 0 -0.15em; color: inherit; background: var(--marker); border-radius: 0.5em 0.2em 0.6em 0.25em; }
+.modal-card .lede { margin: 0 0 22px; color: var(--ink-2); font-size: 18px; line-height: 1.5; }
 
 .modal-card input[type="email"] {
   display: block;
   width: 100%;
   padding: 13px 12px;
   margin-bottom: 10px;
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  background: #fffdf9;
-  color: #1a1712;
-  font-family: var(--sans);
-  font-size: 16px; /* 16px stops iOS zooming on focus */
+  border: 1.5px solid #dccbb0;
+  border-radius: 3px 6px 4px 7px;
+  background: #fffaf1;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px; /* 16px+ stops iOS zooming on focus */
   -webkit-appearance: none;
   appearance: none;
 }
-.modal-card input[type="email"]:focus { outline: none; border-color: var(--ink); }
+.modal-card input[type="email"]:focus { outline: none; border-color: var(--accent); }
 
 .modal-card .btn { width: 100%; }
 
-.form-note { margin-top: 12px; min-height: 1.4em; }
+.form-note { margin-top: 12px; min-height: 1.4em; font-size: 15px; color: var(--muted); font-style: italic; }
+.form-note:empty { display: none; }

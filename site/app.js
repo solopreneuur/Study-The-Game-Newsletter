@@ -15,14 +15,28 @@
     return MONTHS[p[1] - 1] + " " + p[2] + ", " + p[0];
   }
 
+  // Slightly different wobble and tilt per idea, so nothing looks stamped out.
+  var TILT = [-3, 2, -1.5, 2.5, -2, 1.5];
+  var WOBBLE = [
+    "M2 6 C 20 1, 35 10, 55 5 S 90 2, 110 6 S 150 9, 170 4 S 200 6, 218 5",
+    "M2 5 C 25 9, 40 1, 62 6 S 95 9, 120 4 S 160 2, 182 7 S 206 4, 218 6",
+    "M2 7 C 15 2, 38 8, 58 4 S 88 9, 115 5 S 148 1, 172 6 S 204 8, 218 4"
+  ];
+  function squiggle(i, cls) {
+    return '<svg class="squiggle ' + (cls || "") + '" viewBox="0 0 220 10" preserveAspectRatio="none" aria-hidden="true">' +
+      '<path d="' + WOBBLE[i % WOBBLE.length] + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  }
+  function tilt(i, extra) { return ' style="transform:rotate(' + (TILT[i % TILT.length] + (extra || 0)) + 'deg)"'; }
+
   function setMeta(issueNo, date) {
-    meta.textContent = issueNo ? "No. " + issueNo + (date ? " · " + fmtDate(date) : "") : "Every Sunday";
+    meta.textContent = issueNo ? "no. " + issueNo + (date ? " · " + fmtDate(date).toLowerCase() : "") : "every sunday";
   }
 
   function empty() {
     setMeta(null, null);
     target.innerHTML =
       '<div class="empty">' +
+      '<span class="hand">soon…</span>' +
       "<h2>First issue lands Sunday.</h2>" +
       "<p>Five ideas worth stealing, hand-picked every week.</p>" +
       "</div>";
@@ -63,24 +77,26 @@
   function render(issue) {
     var html =
       '<header class="issue-head">' +
-      '<h1 class="issue-title">5 ideas worth <em>stealing</em></h1>' +
+      '<h1 class="issue-title">5 ideas worth <span class="under">stealing' + squiggle(0) + "</span></h1>" +
       (issue.deck ? '<p class="deck">' + inline(issue.deck) + "</p>" : "") +
       "</header>";
 
     issue.ideas.forEach(function (idea, i) {
       html +=
+        '<div class="divider">' + squiggle(i + 1) + "</div>" +
         '<section class="idea">' +
-        '<div class="idea-top mono"><span>' + pad(i + 1) + "</span>" +
-        (idea.starred ? "<span>★ My pick</span>" : "") + "</div>" +
+        '<div class="idea-top"><span class="hand idea-num"' + tilt(i) + ">" + (i + 1) + ".</span>" +
+        (idea.starred ? '<span class="hand idea-pick"' + tilt(i + 1) + ">← my pick</span>" : "") + "</div>" +
         '<h2 class="idea-hook">' + inline(idea.hook) + "</h2>" +
         '<p class="idea-body">' + inline(idea.body.join(" ")) + "</p>" +
-        (idea.steal ? '<div class="steal"><span class="mono steal-label">Steal this</span><p>' + inline(idea.steal) + "</p></div>" : "") +
+        (idea.steal ? '<div class="steal"><span class="hand steal-label"' + tilt(i + 2, 1) + ">steal this →</span><p><mark>" + inline(idea.steal) + "</mark></p></div>" : "") +
         (idea.video ? '<a class="video" href="' + esc(idea.video) + '">I made a video on this →</a>' : "") +
         "</section>";
     });
 
     var sign = issue.signoff.length ? issue.signoff : ["see you sunday", "Huzaifa"];
-    html += '<footer class="signoff">' + inline(sign[0]) + (sign[1] ? "<span>— " + inline(sign[1].replace(/^[—-]\s*/, "")) + "</span>" : "") + "</footer>";
+    html += '<footer class="signoff"><p>' + inline(sign[0]) + "</p>" +
+      (sign[1] ? '<span class="hand">' + inline(sign[1].replace(/^[—-]\s*/, "")) + "</span>" : "") + "</footer>";
     return html;
   }
 

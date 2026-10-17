@@ -5,20 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Study the Game</title>
 <meta name="description" content="5 ideas worth stealing, hand-picked every Sunday.">
-<meta name="theme-color" content="#f3eee3">
+<meta name="theme-color" content="#f7eedd">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=Caveat:wght@500..700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main class="wrap">
   <header class="masthead">
-    <a class="wordmark" href="/">Study the Game</a>
-    <span class="mono" id="meta"></span>
+    <div class="masthead-row">
+      <a class="wordmark" href="/">Study the Game</a>
+      <span class="hand" id="meta"></span>
+    </div>
+    <svg class="squiggle" viewBox="0 0 220 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5 C 25 9, 40 1, 62 6 S 95 9, 120 4 S 160 2, 182 7 S 206 4, 218 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </header>
   <article id="issue"></article>
-  <footer class="foot mono"><span>Study the Game · Every Sunday</span><button type="button" data-open-signup>Subscribe</button></footer>
+  <footer class="foot"><svg class="squiggle" viewBox="0 0 220 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5 C 25 9, 40 1, 62 6 S 95 9, 120 4 S 160 2, 182 7 S 206 4, 218 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Study the Game · every Sunday</span><button type="button" data-open-signup>Subscribe</button></footer>
 </main>
 
 <button class="btn subscribe-fab" type="button" data-open-signup>Subscribe</button>
@@ -27,15 +31,13 @@
   <div class="modal-card">
     <button class="modal-close" id="close-signup" type="button" aria-label="Close">✕</button>
     <div id="signup-body">
-      <span class="mono">Study the Game</span>
-      <h2 id="signup-title">5 ideas worth <em>stealing</em>. Every Sunday.</h2>
-      <p class="lede">Hand-picked from business, marketing, human behavior, and the people worth studying. Short, surprising, and something you can use.</p>
+      <h2 id="signup-title">5 ideas worth <mark>stealing</mark></h2>
       <form id="signup-form" novalidate>
         <input id="signup-email" aria-label="Email address" type="email" name="fields[email]" placeholder="you@email.com" autocomplete="email" required>
         <input type="hidden" name="ml-submit" value="1">
         <input type="hidden" name="anticsrf" value="true">
         <button class="btn" type="submit">Get it every Sunday</button>
-        <div class="form-note mono" id="form-note" aria-live="polite">Free. Unsubscribe anytime.</div>
+        <div class="form-note" id="form-note" aria-live="polite"></div>
       </form>
     </div>
   </div>
@@ -71,12 +73,11 @@ var ML_FORM_ACTION = "https://assets.mailerlite.com/jsonp/2555674/forms/20153505
     e.preventDefault();
     if (!email.value || !email.checkValidity()) { note.textContent = "Enter a valid email."; return; }
     submit.disabled = true;
-    note.textContent = "Sending…";
+    note.textContent = "";
     fetch(ML_FORM_ACTION, { method: "POST", mode: "no-cors", body: new FormData(form) })
       .then(function () {
         remember();
-        body.innerHTML = '<div class="done"><span class="mono">Study the Game</span>' +
-          '<h2>You’re in.</h2><p class="lede">Next issue hits your inbox Sunday morning.</p></div>';
+        body.innerHTML = '<div class="done"><h2>You’re in.</h2></div>';
         setTimeout(function () { modal.hidden = true; }, 3200);
       })
       .catch(function () {
