@@ -81,7 +81,9 @@ Follow `templates/issue-template.md`:
 
 ## Step 6: Site
 
-Copy `issues/<date>/issue.md` to `site/latest.md`, overwriting it.
+Write `site/latest.md`, overwriting it: a first line `<!-- date: <date> -->`
+(the site shows it in the masthead), then the full contents of
+`issues/<date>/issue.md`.
 
 ## Step 7: Ledger
 

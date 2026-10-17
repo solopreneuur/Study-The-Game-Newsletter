@@ -4,55 +4,73 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Study the Game</title>
-<meta name="description" content="5 ideas that make ambitious people sharper. Every Sunday.">
+<meta name="description" content="5 ideas worth stealing, hand-picked every Sunday.">
+<meta name="theme-color" content="#f3eee3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main class="wrap">
-  <div class="masthead">Study the Game</div>
+  <header class="masthead">
+    <div class="masthead-top mono"><span>Field notes for ambitious people</span><span>Every Sunday</span></div>
+    <div class="double-rule"></div>
+    <a class="wordmark" href="/">Study the Game</a>
+    <div class="masthead-meta mono" id="meta"></div>
+  </header>
   <article id="issue"></article>
+  <footer class="foot">
+    <div class="double-rule"></div>
+    <div class="foot-mark">Study the Game</div>
+    <div class="foot-row mono"><span>5 ideas worth stealing · Every Sunday</span><button type="button" data-open-signup>Subscribe</button></div>
+  </footer>
 </main>
 
-<button class="subscribe-fab" id="open-signup" type="button">Subscribe</button>
+<button class="btn subscribe-fab" type="button" data-open-signup>Subscribe</button>
 
 <div class="modal" id="signup" role="dialog" aria-modal="true" aria-labelledby="signup-title" hidden>
   <div class="modal-card">
+    <div class="modal-strip mono"><span>Study the Game</span><span>Sign-up sheet</span></div>
     <button class="modal-close" id="close-signup" type="button" aria-label="Close">✕</button>
-    <h2 id="signup-title">5 ideas that make you sharper</h2>
-    <p>Hand-picked every week. Short, surprising, and something you can use.</p>
-    <form id="signup-form" novalidate>
-      <input type="email" name="fields[email]" placeholder="you@email.com" autocomplete="email" required aria-label="Email">
-      <input type="hidden" name="ml-submit" value="1">
-      <input type="hidden" name="anticsrf" value="true">
-      <button type="submit">Get it every Sunday</button>
-      <div class="form-note" id="form-note" aria-live="polite"></div>
-    </form>
+    <div class="double-rule"></div>
+    <div id="signup-body">
+      <h2 id="signup-title">5 ideas worth <em>stealing</em>. Every Sunday.</h2>
+      <p class="lede">Hand-picked from business, marketing, human behavior, and the people worth studying. Short, surprising, and something you can use.</p>
+      <form id="signup-form" novalidate>
+        <label class="mono field-label" for="signup-email">Email address</label>
+        <input id="signup-email" type="email" name="fields[email]" placeholder="you@email.com" autocomplete="email" required>
+        <input type="hidden" name="ml-submit" value="1">
+        <input type="hidden" name="anticsrf" value="true">
+        <button class="btn" type="submit">Get it every Sunday</button>
+        <div class="form-note mono" id="form-note" aria-live="polite">Free. Unsubscribe anytime.</div>
+      </form>
+    </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="app.js"></script>
 <script>
-// MailerLite embedded form tied to the "Study the Game" group. Paste the form's
-// action URL from MailerLite → Forms → Embedded forms → your form → HTML code,
-// e.g. https://assets.mailerlite.com/jsonp/<account>/forms/<form>/subscribe
+// MailerLite embedded form tied to the "Study the Game Newsletter" group.
 var ML_FORM_ACTION = "https://assets.mailerlite.com/jsonp/2555674/forms/201535056716498357/subscribe";
 
 (function () {
   var KEY = "stg-signup-done";
   var modal = document.getElementById("signup");
+  var body = document.getElementById("signup-body");
   var form = document.getElementById("signup-form");
   var note = document.getElementById("form-note");
-  var email = form.querySelector('input[type="email"]');
+  var email = document.getElementById("signup-email");
   var submit = form.querySelector('button[type="submit"]');
 
   function remember() { try { localStorage.setItem(KEY, "1"); } catch (e) {} }
   function seen() { try { return localStorage.getItem(KEY) === "1"; } catch (e) { return false; } }
 
-  function open() { modal.hidden = false; email.focus(); }
+  function open() { modal.hidden = false; email && email.focus(); }
   function close() { modal.hidden = true; remember(); }
 
-  document.getElementById("open-signup").addEventListener("click", open);
+  document.querySelectorAll("[data-open-signup]").forEach(function (b) { b.addEventListener("click", open); });
   document.getElementById("close-signup").addEventListener("click", close);
   modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) close(); });
@@ -60,14 +78,14 @@ var ML_FORM_ACTION = "https://assets.mailerlite.com/jsonp/2555674/forms/20153505
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (!email.value || !email.checkValidity()) { note.textContent = "Enter a valid email."; return; }
-    if (!ML_FORM_ACTION) { note.textContent = "Signup isn't connected yet."; return; }
     submit.disabled = true;
-    note.textContent = "";
+    note.textContent = "Sending…";
     fetch(ML_FORM_ACTION, { method: "POST", mode: "no-cors", body: new FormData(form) })
       .then(function () {
         remember();
-        form.innerHTML = '<p style="margin:0;color:inherit;font-size:18px;"><b>You\'re in.</b> Check your inbox.</p>';
-        setTimeout(function () { modal.hidden = true; }, 2500);
+        body.innerHTML = '<div class="done"><span class="mono stamp">Signed ✓</span>' +
+          '<h2>You’re in.</h2><p class="lede">Next issue hits your inbox Sunday morning.</p></div>';
+        setTimeout(function () { modal.hidden = true; }, 3200);
       })
       .catch(function () {
         submit.disabled = false;
