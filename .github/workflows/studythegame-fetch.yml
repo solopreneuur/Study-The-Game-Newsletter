@@ -94,6 +94,7 @@ jobs:
             --allowedTools "Read,Edit,Write,Glob,Grep,WebFetch,WebSearch,Bash(python3 .claude/scripts/rss_ingest.py *),Bash(date *),mcp__perplexity" > _run/run.log 2>&1
           CODE=$?
           echo "CLAUDE_EXIT=$CODE" >> "$GITHUB_ENV"
+          if [ -s "issues/$DATE/candidates.md" ]; then echo "FRESH=true" >> "$GITHUB_ENV"; else echo "FRESH=false" >> "$GITHUB_ENV"; fi
           echo "Claude exit code: $CODE. Last 30 lines of its log:"
           tail -n 30 _run/run.log
           exit 0
@@ -101,6 +102,11 @@ jobs:
       - name: Commit results
         if: steps.check.outputs.already_done != 'true'
         run: |
+          if [ "$FRESH" != "true" ]; then
+            echo "No new candidates. Restoring the repo and committing nothing."
+            git checkout -- . && git clean -fdq issues ledger
+            exit 0
+          fi
           git config user.name "studythegame-bot"
           git config user.email "actions@users.noreply.github.com"
           git add -A
@@ -114,7 +120,7 @@ jobs:
           DATE: ${{ steps.check.outputs.date }}
         run: |
           F="issues/$DATE/candidates.md"
-          [ -s "$F" ] || { echo "No candidates file, skipping issue."; exit 0; }
+          [ "$FRESH" = "true" ] || { echo "No new candidates, skipping issue."; exit 0; }
           gh label create picks --color 0E8A16 --description "Study the Game weekly picks" 2>/dev/null || true
           gh issue create --title "Study the Game picks - $DATE" --label picks --assignee "$OWNER" --body-file "$F"
 
@@ -123,7 +129,7 @@ jobs:
         env:
           DATE: ${{ steps.check.outputs.date }}
         run: |
-          [ -s "issues/$DATE/candidates.md" ] && exit 0
+          [ "$FRESH" = "true" ] && exit 0
           mkdir -p _run
           {
             echo "# Study the Game fetch did not produce candidates"
