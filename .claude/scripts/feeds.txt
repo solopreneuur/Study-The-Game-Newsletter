@@ -1,0 +1,23 @@
+# Study the Game feeds. One "Name | URL" per line. Lines starting with # are ignored.
+# No working feed (search these directly instead): The Decision Lab, Marketing
+# Examples (Harry Dry), First Round Review, Rory Sutherland talks.
+
+# Psych and behavior
+Behavioral Scientist | https://behavioralscientist.org/feed/
+Nautilus | https://nautil.us/feed/
+Aeon | https://aeon.co/feed.rss
+Experimental History (Adam Mastroianni) | https://www.experimental-history.com/feed
+
+# Marketing
+Lenny's Newsletter | https://www.lennysnewsletter.com/feed
+
+# Startups and business
+# Paul Graham's feed has no dates, so rss_ingest skips it; read paulgraham.com/articles.html instead.
+Paul Graham Essays | http://www.aaronsw.com/2002/feeds/pgessays.rss
+Acquired | https://feeds.transistor.fm/acquired
+Founders (David Senra) | https://feeds.megaphone.fm/DSLLC6297708582
+Invest Like the Best | https://feeds.megaphone.fm/investlikethebest
+
+# Models and history
+Farnam Street | https://fs.blog/feed/
+Marginal Revolution | https://marginalrevolution.com/feed

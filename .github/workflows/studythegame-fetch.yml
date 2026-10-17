@@ -1,0 +1,144 @@
+name: Study the Game Fetch
+
+# Triggered by cron-job.org (Sunday 6:20am America/New_York) through the
+# workflow_dispatch API. No schedule: block on purpose; GitHub's scheduler
+# runs late or drops runs.
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Run even if today's candidates already exist"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: studythegame
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TZ: America/New_York
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+      GMAIL_USER: ${{ secrets.GMAIL_USER }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      GH_TOKEN: ${{ github.token }}
+      OWNER: ${{ github.repository_owner }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check whether today's candidates already exist
+        id: check
+        env:
+          FORCE: ${{ inputs.force }}
+        run: |
+          echo "date=$(date +%F)" >> "$GITHUB_OUTPUT"
+          if [ "$FORCE" != "true" ] && [ -f "issues/$(date +%F)/candidates.md" ]; then
+            echo "already_done=true" >> "$GITHUB_OUTPUT"
+            echo "Today's candidates already exist. Skipping the rest of this run."
+          else
+            echo "already_done=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.already_done != 'true'
+        with:
+          node-version: 20
+
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.already_done != 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Install tools
+        if: steps.check.outputs.already_done != 'true'
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          pip install feedparser markdown
+          claude --version
+
+      - name: Trust the workspace
+        if: steps.check.outputs.already_done != 'true'
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          from pathlib import Path
+          p = Path.home() / ".claude.json"
+          text = p.read_text() if p.exists() else ""
+          data = json.loads(text) if text.strip() else {}
+          data.setdefault("projects", {}).setdefault(os.getcwd(), {})["hasTrustDialogAccepted"] = True
+          p.write_text(json.dumps(data, indent=2))
+          EOF
+
+      - name: Find candidates
+        if: steps.check.outputs.already_done != 'true'
+        timeout-minutes: 45
+        run: |
+          mkdir -p _run
+          set +e
+          claude -p "/studythegame-fetch" \
+            --permission-mode acceptEdits \
+            --allowedTools "Read,Edit,Write,Glob,Grep,WebFetch,WebSearch,Bash(python3 .claude/scripts/rss_ingest.py *),Bash(date *),mcp__perplexity" > _run/run.log 2>&1
+          echo "CLAUDE_EXIT=$?" >> "$GITHUB_ENV"
+          exit 0
+
+      - name: Commit results
+        if: steps.check.outputs.already_done != 'true'
+        run: |
+          git config user.name "studythegame-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Study the Game candidates $(date +%F)"
+          git pull --rebase
+          git push
+
+      - name: Open the picks issue
+        if: steps.check.outputs.already_done != 'true'
+        env:
+          DATE: ${{ steps.check.outputs.date }}
+        run: |
+          F="issues/$DATE/candidates.md"
+          [ -s "$F" ] || { echo "No candidates file, skipping issue."; exit 0; }
+          gh label create picks --color 0E8A16 --description "Study the Game weekly picks" 2>/dev/null || true
+          gh issue create --title "Study the Game picks - $DATE" --label picks --assignee "$OWNER" --body-file "$F"
+
+      - name: Failure email
+        if: always() && steps.check.outputs.already_done != 'true'
+        env:
+          DATE: ${{ steps.check.outputs.date }}
+        run: |
+          [ -s "issues/$DATE/candidates.md" ] && exit 0
+          mkdir -p _run
+          {
+            echo "# Study the Game fetch did not produce candidates"
+            echo
+            echo "## What failed"
+            echo
+            if [ -n "${CLAUDE_EXIT:-}" ]; then
+              echo "Claude Code ran but wrote no candidates (exit code $CLAUDE_EXIT)"
+            else
+              echo "Claude Code never started; an earlier step (checkout or install) failed"
+            fi
+            echo
+            echo "## Full run on GitHub"
+            echo
+            echo "$RUN_URL"
+            echo
+            echo "## Last 30 lines of the log"
+            echo
+            if [ -s _run/run.log ]; then
+              tail -n 30 _run/run.log | sed 's/^/    /'
+            else
+              echo "(no log was written)"
+            fi
+          } > _run/failure.md
+          python .claude/scripts/send_email.py "Study the Game fetch FAILED - $DATE" _run/failure.md

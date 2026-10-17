@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study the Game</title>
+<meta name="description" content="5 ideas that make ambitious people sharper. Every Sunday.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wrap">
+  <div class="masthead">Study the Game</div>
+  <article id="issue"></article>
+</main>
+
+<button class="subscribe-fab" id="open-signup" type="button">Subscribe</button>
+
+<div class="modal" id="signup" role="dialog" aria-modal="true" aria-labelledby="signup-title" hidden>
+  <div class="modal-card">
+    <button class="modal-close" id="close-signup" type="button" aria-label="Close">✕</button>
+    <h2 id="signup-title">5 ideas that make you sharper</h2>
+    <p>Hand-picked every week. Short, surprising, and something you can use.</p>
+    <form id="signup-form" novalidate>
+      <input type="email" name="fields[email]" placeholder="you@email.com" autocomplete="email" required aria-label="Email">
+      <input type="hidden" name="ml-submit" value="1">
+      <input type="hidden" name="anticsrf" value="true">
+      <button type="submit">Get it every Sunday</button>
+      <div class="form-note" id="form-note" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="app.js"></script>
+<script>
+// MailerLite embedded form tied to the "Study the Game" group. Paste the form's
+// action URL from MailerLite → Forms → Embedded forms → your form → HTML code,
+// e.g. https://assets.mailerlite.com/jsonp/<account>/forms/<form>/subscribe
+var ML_FORM_ACTION = "https://assets.mailerlite.com/jsonp/2555674/forms/201535056716498357/subscribe";
+
+(function () {
+  var KEY = "stg-signup-done";
+  var modal = document.getElementById("signup");
+  var form = document.getElementById("signup-form");
+  var note = document.getElementById("form-note");
+  var email = form.querySelector('input[type="email"]');
+  var submit = form.querySelector('button[type="submit"]');
+
+  function remember() { try { localStorage.setItem(KEY, "1"); } catch (e) {} }
+  function seen() { try { return localStorage.getItem(KEY) === "1"; } catch (e) { return false; } }
+
+  function open() { modal.hidden = false; email.focus(); }
+  function close() { modal.hidden = true; remember(); }
+
+  document.getElementById("open-signup").addEventListener("click", open);
+  document.getElementById("close-signup").addEventListener("click", close);
+  modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) close(); });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!email.value || !email.checkValidity()) { note.textContent = "Enter a valid email."; return; }
+    if (!ML_FORM_ACTION) { note.textContent = "Signup isn't connected yet."; return; }
+    submit.disabled = true;
+    note.textContent = "";
+    fetch(ML_FORM_ACTION, { method: "POST", mode: "no-cors", body: new FormData(form) })
+      .then(function () {
+        remember();
+        form.innerHTML = '<p style="margin:0;color:inherit;font-size:18px;"><b>You\'re in.</b> Check your inbox.</p>';
+        setTimeout(function () { modal.hidden = true; }, 2500);
+      })
+      .catch(function () {
+        submit.disabled = false;
+        note.textContent = "Something went wrong. Try again.";
+      });
+  });
+
+  if (!seen()) open();
+})();
+</script>
+</body>
+</html>

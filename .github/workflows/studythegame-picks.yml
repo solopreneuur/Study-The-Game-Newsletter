@@ -1,0 +1,146 @@
+name: Study the Game Picks
+
+# Huzaifa's email reply to the picks issue becomes a comment, which triggers
+# this run: write the issue, send it through MailerLite, report back.
+# Test mode: set the repository variable TEST_MODE=true (Settings → Secrets and
+# variables → Actions → Variables) to send to MAILERLITE_TEST_GROUP_ID instead.
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: studythegame
+  cancel-in-progress: false
+
+jobs:
+  picks:
+    if: >-
+      github.event.comment.user.login == github.repository_owner &&
+      !github.event.issue.pull_request &&
+      contains(github.event.issue.labels.*.name, 'picks')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: America/New_York
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
+      MAILERLITE_GROUP_ID: ${{ secrets.MAILERLITE_GROUP_ID }}
+      MAILERLITE_TEST_GROUP_ID: ${{ secrets.MAILERLITE_TEST_GROUP_ID }}
+      MAILERLITE_FROM: ${{ secrets.MAILERLITE_FROM }}
+      TEST_MODE: ${{ vars.TEST_MODE }}
+      GH_TOKEN: ${{ github.token }}
+      ISSUE: ${{ github.event.issue.number }}
+      COMMENT_ID: ${{ github.event.comment.id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Save the reply
+        id: inputs
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: |
+          mkdir -p _run
+          printf '%s' "$COMMENT_BODY" > _run/picks-reply.txt
+          printf '%s' "$ISSUE_TITLE" > _run/issue-title.txt
+          gh api "repos/${{ github.repository }}/issues/$ISSUE/comments" --paginate \
+            --jq ".[] | select(.id != $COMMENT_ID) | \"--- \(.user.login):\n\(.body)\n\"" > _run/earlier-replies.txt || true
+          DATE=$(grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' _run/issue-title.txt | head -1)
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether this issue was already sent
+        id: sent
+        env:
+          DATE: ${{ steps.inputs.outputs.date }}
+        run: |
+          PRIOR=$(python3 - <<'EOF'
+          import os, sys
+          sys.path.insert(0, ".claude/scripts")
+          import mailerlite_send as m
+          print(m.already_sent(os.environ["DATE"], os.environ.get("TEST_MODE", "").lower() == "true") or "")
+          EOF
+          )
+          if [ -n "$PRIOR" ]; then
+            echo "already_sent=true" >> "$GITHUB_OUTPUT"
+            printf 'STATUS: already-sent\n\nThe %s issue already went out (campaign %s). Nothing was rewritten or resent.\n' "$DATE" "$PRIOR" > _run/draft-result.md
+          else
+            echo "already_sent=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.sent.outputs.already_sent != 'true'
+        with:
+          node-version: 20
+
+      - name: Install Claude Code
+        if: steps.sent.outputs.already_sent != 'true'
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude --version
+
+      - name: Trust the workspace
+        if: steps.sent.outputs.already_sent != 'true'
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          from pathlib import Path
+          p = Path.home() / ".claude.json"
+          text = p.read_text() if p.exists() else ""
+          data = json.loads(text) if text.strip() else {}
+          data.setdefault("projects", {}).setdefault(os.getcwd(), {})["hasTrustDialogAccepted"] = True
+          p.write_text(json.dumps(data, indent=2))
+          EOF
+
+      - name: Write the issue
+        if: steps.sent.outputs.already_sent != 'true'
+        run: |
+          claude -p "/studythegame-draft" \
+            --permission-mode acceptEdits \
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(date *)" > _run/run.log 2>&1 || true
+
+      - name: Commit the issue
+        if: steps.sent.outputs.already_sent != 'true'
+        run: |
+          git config user.name "studythegame-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Study the Game issue $(date +%F)"
+          git pull --rebase
+          git push
+
+      - name: Send through MailerLite
+        if: steps.sent.outputs.already_sent != 'true'
+        env:
+          DATE: ${{ steps.inputs.outputs.date }}
+        run: |
+          R="_run/draft-result.md"
+          if [ -s "$R" ] && head -n 1 "$R" | grep -q '^STATUS: done'; then
+            python3 .claude/scripts/mailerlite_send.py "issues/$DATE/issue.md" || true
+          fi
+
+      - name: Commit the send record
+        if: steps.sent.outputs.already_sent != 'true'
+        run: |
+          git add -A
+          git diff --cached --quiet || git commit -m "Study the Game sent $(date +%F)"
+          git pull --rebase
+          git push
+
+      - name: Report back
+        if: always()
+        run: |
+          R="_run/draft-result.md"
+          if [ -s "$R" ]; then
+            if [ "${TEST_MODE,,}" = "true" ]; then
+              { head -n 1 "$R"; printf '\n_TEST MODE: sends go to the Test group only._\n'; tail -n +2 "$R"; } > _run/comment.md
+              R=_run/comment.md
+            fi
+            gh issue comment "$ISSUE" --body-file "$R"
+            grep -q '^SENT ✓' "$R" && gh issue close "$ISSUE" || true
+          else
+            gh issue comment "$ISSUE" --body "Draft run failed. Nothing was written. Check the Actions log."
+          fi
