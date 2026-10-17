@@ -3,7 +3,6 @@
   var target = document.getElementById("issue");
   var meta = document.getElementById("meta");
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  var DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   function esc(s) {
     return s.replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
@@ -13,22 +12,17 @@
 
   function fmtDate(iso) {
     var p = iso.split("-").map(Number);
-    var d = new Date(p[0], p[1] - 1, p[2]);
-    return DAYS[d.getDay()] + " · " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+    return MONTHS[p[1] - 1] + " " + p[2] + ", " + p[0];
   }
 
   function setMeta(issueNo, date) {
-    meta.innerHTML =
-      "<span>Issue <b>No. " + esc(issueNo || "00") + "</b></span>" +
-      "<span>" + (date ? esc(fmtDate(date)) : "Every Sunday") + "</span>" +
-      "<span>5 ideas</span>";
+    meta.textContent = issueNo ? "No. " + issueNo + (date ? " · " + fmtDate(date) : "") : "Every Sunday";
   }
 
   function empty() {
-    setMeta("00", null);
+    setMeta(null, null);
     target.innerHTML =
       '<div class="empty">' +
-      '<span class="mono kicker">Scouting report pending</span>' +
       "<h2>First issue lands Sunday.</h2>" +
       "<p>Five ideas worth stealing, hand-picked every week.</p>" +
       "</div>";
@@ -67,24 +61,21 @@
   }
 
   function render(issue) {
-    var total = issue.ideas.length;
     var html =
       '<header class="issue-head">' +
-      '<span class="mono kicker">This week’s playbook</span>' +
-      '<h1 class="issue-title">5 Ideas Worth <em>Stealing</em></h1>' +
+      '<h1 class="issue-title">5 ideas worth <em>stealing</em></h1>' +
       (issue.deck ? '<p class="deck">' + inline(issue.deck) + "</p>" : "") +
       "</header>";
 
     issue.ideas.forEach(function (idea, i) {
       html +=
         '<section class="idea">' +
-        '<div class="idea-top"><span class="idea-num">' + pad(i + 1) + "</span>" +
-        '<span class="mono idea-count">' + pad(i + 1) + " / " + pad(total) + "</span></div>" +
-        (idea.starred ? '<span class="mono stamp">★ My pick</span>' : "") +
+        '<div class="idea-top mono"><span>' + pad(i + 1) + "</span>" +
+        (idea.starred ? "<span>★ My pick</span>" : "") + "</div>" +
         '<h2 class="idea-hook">' + inline(idea.hook) + "</h2>" +
         '<p class="idea-body">' + inline(idea.body.join(" ")) + "</p>" +
         (idea.steal ? '<div class="steal"><span class="mono steal-label">Steal this</span><p>' + inline(idea.steal) + "</p></div>" : "") +
-        (idea.video ? '<a class="mono video" href="' + esc(idea.video) + '">I made a video on this</a>' : "") +
+        (idea.video ? '<a class="video" href="' + esc(idea.video) + '">I made a video on this →</a>' : "") +
         "</section>";
     });
 

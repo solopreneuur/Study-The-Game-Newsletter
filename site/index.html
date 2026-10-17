@@ -14,32 +14,24 @@
 <body>
 <main class="wrap">
   <header class="masthead">
-    <div class="masthead-top mono"><span>Field notes for ambitious people</span><span>Every Sunday</span></div>
-    <div class="double-rule"></div>
     <a class="wordmark" href="/">Study the Game</a>
-    <div class="masthead-meta mono" id="meta"></div>
+    <span class="mono" id="meta"></span>
   </header>
   <article id="issue"></article>
-  <footer class="foot">
-    <div class="double-rule"></div>
-    <div class="foot-mark">Study the Game</div>
-    <div class="foot-row mono"><span>5 ideas worth stealing · Every Sunday</span><button type="button" data-open-signup>Subscribe</button></div>
-  </footer>
+  <footer class="foot mono"><span>Study the Game · Every Sunday</span><button type="button" data-open-signup>Subscribe</button></footer>
 </main>
 
 <button class="btn subscribe-fab" type="button" data-open-signup>Subscribe</button>
 
 <div class="modal" id="signup" role="dialog" aria-modal="true" aria-labelledby="signup-title" hidden>
   <div class="modal-card">
-    <div class="modal-strip mono"><span>Study the Game</span><span>Sign-up sheet</span></div>
     <button class="modal-close" id="close-signup" type="button" aria-label="Close">✕</button>
-    <div class="double-rule"></div>
     <div id="signup-body">
+      <span class="mono">Study the Game</span>
       <h2 id="signup-title">5 ideas worth <em>stealing</em>. Every Sunday.</h2>
       <p class="lede">Hand-picked from business, marketing, human behavior, and the people worth studying. Short, surprising, and something you can use.</p>
       <form id="signup-form" novalidate>
-        <label class="mono field-label" for="signup-email">Email address</label>
-        <input id="signup-email" type="email" name="fields[email]" placeholder="you@email.com" autocomplete="email" required>
+        <input id="signup-email" aria-label="Email address" type="email" name="fields[email]" placeholder="you@email.com" autocomplete="email" required>
         <input type="hidden" name="ml-submit" value="1">
         <input type="hidden" name="anticsrf" value="true">
         <button class="btn" type="submit">Get it every Sunday</button>
@@ -83,7 +75,7 @@ var ML_FORM_ACTION = "https://assets.mailerlite.com/jsonp/2555674/forms/20153505
     fetch(ML_FORM_ACTION, { method: "POST", mode: "no-cors", body: new FormData(form) })
       .then(function () {
         remember();
-        body.innerHTML = '<div class="done"><span class="mono stamp">Signed ✓</span>' +
+        body.innerHTML = '<div class="done"><span class="mono">Study the Game</span>' +
           '<h2>You’re in.</h2><p class="lede">Next issue hits your inbox Sunday morning.</p></div>';
         setTimeout(function () { modal.hidden = true; }, 3200);
       })
