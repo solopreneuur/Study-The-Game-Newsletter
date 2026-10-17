@@ -98,7 +98,7 @@ a:hover { color: var(--accent); }
 .issue-title .under { position: relative; display: inline-block; font-style: italic; font-weight: 500; color: var(--accent); }
 .issue-title .under svg { position: absolute; left: -2%; bottom: -10px; width: 104%; height: 14px; }
 
-.deck { margin: 22px 0 0; color: var(--ink-2); font-style: italic; }
+.deck { margin: 24px 0 0; color: var(--ink-2); font-size: 20px; line-height: 1.55; }
 
 /* ---------- ideas ---------- */
 
@@ -156,18 +156,7 @@ a:hover { color: var(--accent); }
 
 /* ---------- empty state ---------- */
 
-.empty { padding: 96px 0 24px; }
-.empty .hand { display: inline-block; font-size: 26px; transform: rotate(-3deg); margin-bottom: 8px; }
-.empty h2 {
-  margin: 0 0 12px;
-  font-family: var(--head);
-  font-variation-settings: "SOFT" 100, "WONK" 1;
-  font-weight: 700;
-  font-size: clamp(36px, 10vw, 50px);
-  line-height: 1.02;
-  letter-spacing: -0.025em;
-}
-.empty p { margin: 0; color: var(--ink-2); font-style: italic; }
+.soon { display: inline-block; margin: 44px 0 0; font-size: 34px; transform: rotate(-2.5deg); }
 
 /* ---------- footer ---------- */
 

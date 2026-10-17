@@ -28,33 +28,37 @@
   }
   function tilt(i, extra) { return ' style="transform:rotate(' + (TILT[i % TILT.length] + (extra || 0)) + 'deg)"'; }
 
+  var ABOUT = "Every Sunday I send 5 short ideas from psychology, marketing, business, and the people worth studying. " +
+    "Each one is surprising, true, and something you can actually use.";
+
+  function head() {
+    return '<header class="issue-head">' +
+      '<h1 class="issue-title">5 ideas worth <span class="under">stealing' + squiggle(0) + "</span></h1>" +
+      '<p class="deck">' + ABOUT + "</p>" +
+      "</header>";
+  }
+
   function setMeta(issueNo, date) {
     meta.textContent = issueNo ? "no. " + issueNo + (date ? " · " + fmtDate(date).toLowerCase() : "") : "every sunday";
   }
 
   function empty() {
     setMeta(null, null);
-    target.innerHTML =
-      '<div class="empty">' +
-      '<span class="hand">soon…</span>' +
-      "<h2>First issue lands Sunday.</h2>" +
-      "<p>Five ideas worth stealing, hand-picked every week.</p>" +
-      "</div>";
+    target.innerHTML = head() + '<p class="hand soon">First issue lands Sunday.</p>';
   }
 
-  // Issue markdown → { issueNo, deck, ideas: [{ n, hook, starred, body, steal, video }], signoff }
+  // Issue markdown → { issueNo, ideas: [{ n, hook, starred, body, steal, video }], signoff }
   function parse(md) {
     var blocks = md.trim().split(/\n\s*\n/).map(function (b) {
       return b.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
     }).filter(function (b) { return b.length; });
 
-    var out = { issueNo: null, deck: "", ideas: [], signoff: [] };
+    var out = { issueNo: null, ideas: [], signoff: [] };
     blocks.forEach(function (lines) {
       var head = lines[0].match(/^\*\*(\d+)\.\s+(.+?)\*\*\s*(.*)$/);
       if (/^#\s/.test(lines[0])) {
         var no = lines[0].match(/#(\d+)/);
         out.issueNo = no ? no[1] : null;
-        out.deck = (lines[1] || "").replace(/^_(.*)_$/, "$1");
         return;
       }
       if (head) {
@@ -75,11 +79,7 @@
   }
 
   function render(issue) {
-    var html =
-      '<header class="issue-head">' +
-      '<h1 class="issue-title">5 ideas worth <span class="under">stealing' + squiggle(0) + "</span></h1>" +
-      (issue.deck ? '<p class="deck">' + inline(issue.deck) + "</p>" : "") +
-      "</header>";
+    var html = head();
 
     issue.ideas.forEach(function (idea, i) {
       html +=
