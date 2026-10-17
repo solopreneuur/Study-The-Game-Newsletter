@@ -57,9 +57,9 @@ ledger:
 
 Run `date +%F`. That is `<date>` for every path below.
 
-If `issues/<date>/candidates.md` already exists, this is a forced rerun:
-remove that date's rows from `ledger/surfaced.jsonl` before Step 3, so you
-don't dedupe against your own earlier run, then overwrite the file.
+If `ledger/surfaced.jsonl` already has rows for `<date>`, this is a forced
+rerun: remove that date's rows before Step 3, so you don't dedupe against your
+own earlier run, and overwrite `issues/<date>/candidates.md` if it exists.
 
 ## Step 2: Gather
 

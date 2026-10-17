@@ -82,13 +82,20 @@ jobs:
       - name: Find candidates
         if: steps.check.outputs.already_done != 'true'
         timeout-minutes: 45
+        env:
+          DATE: ${{ steps.check.outputs.date }}
         run: |
           mkdir -p _run
+          # A forced rerun starts clean, so a crash can't leave the old file to be sent as new.
+          rm -f "issues/$DATE/candidates.md"
           set +e
           claude -p "/studythegame-fetch" \
             --permission-mode acceptEdits \
             --allowedTools "Read,Edit,Write,Glob,Grep,WebFetch,WebSearch,Bash(python3 .claude/scripts/rss_ingest.py *),Bash(date *),mcp__perplexity" > _run/run.log 2>&1
-          echo "CLAUDE_EXIT=$?" >> "$GITHUB_ENV"
+          CODE=$?
+          echo "CLAUDE_EXIT=$CODE" >> "$GITHUB_ENV"
+          echo "Claude exit code: $CODE. Last 30 lines of its log:"
+          tail -n 30 _run/run.log
           exit 0
 
       - name: Commit results
